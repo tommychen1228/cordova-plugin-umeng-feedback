@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="com.myideaway.cordova.umeng.share" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>UMeng Feedback Plugin</name>
+    <description>UMeng feedback for cordova plugin</description>
+    <author>Tommy Chen</author>
+    <keywords>umeng,feedback,cordova</keywords>
+    <license>Apache 2.0 License</license>
+    <preference name="API_KEY"/>
+    <preference name="MESSAGE_SECRET"/>
+    <engines>
+        <engine name="cordova" version="&gt;=4.0"/>
+    </engines>
+    <js-module name="UMengFeedback" src="www/umeng-feedback.js">
+        <clobbers target="UMengFeedback"/>
+    </js-module>
+    <!-- android -->
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="UMengFeedbackPlugin">
+                <param name="android-package" value="com.myideaway.cordova.umeng.share.UMengFeedbackPlugin"/>
+            </feature>
+        </config-file>
+        <config-file parent="/manifest" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+            <uses-permission android:name="android.permission.READ_LOGS"/>
+            <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+            <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+            <uses-permission android:name="android.permission.WAKE_LOCK"/>
+            <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+            <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+            <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.GET_TASKS"/>
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+        </config-file>
+        <config-file parent="/manifest/application" target="AndroidManifest.xml">
+            <activity android:label="@string/umeng_fb_title" android:launchMode="singleTop" android:name="com.umeng.fb.ConversationActivity"/>
+            <activity android:label="@string/umeng_fb_title" android:launchMode="singleTop" android:name="com.umeng.fb.HelpActivity"/>
+            <!--umeng push-->
+            <receiver android:exported="false" android:name="com.umeng.message.NotificationProxyBroadcastReceiver"/>
+            <receiver android:name="com.umeng.message.SystemReceiver" android:process=":push">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                    <data android:scheme="package"/>
+                </intent-filter>
+            </receiver>
+            <receiver android:exported="false" android:name="com.umeng.message.MessageReceiver" android:process=":push">
+                <intent-filter>
+                    <action android:name="org.agoo.android.intent.action.RECEIVE"/>
+                </intent-filter>
+            </receiver>
+            <receiver android:name="com.umeng.message.ElectionReceiver" android:process=":push">
+                <intent-filter>
+                    <action android:name="org.agoo.android.intent.action.ELECTION_RESULT_V4"/>
+                    <category android:name="umeng"/>
+                </intent-filter>
+            </receiver>
+            <receiver android:exported="false" android:name="com.umeng.message.RegistrationReceiver">
+                <intent-filter>
+                    <action android:name="com.umeng.fb.example.intent.action.COMMAND"/>
+                </intent-filter>
+            </receiver>
+            <receiver android:name="com.umeng.message.UmengMessageBootReceiver">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                </intent-filter>
+            </receiver>
+            <service android:exported="true" android:label="PushService" android:name="com.umeng.message.UmengService" android:process=":push">
+                <intent-filter>
+                    <action android:name="com.umeng.fb.example.intent.action.START"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.umeng.fb.example.intent.action.COCKROACH"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="org.agoo.android.intent.action.PING_V4"/>
+                    <category android:name="umeng"/>
+                </intent-filter>
+            </service>
+            <service android:name="com.umeng.message.UmengIntentService" android:process=":push"/>
+            <service android:exported="true" android:name="com.umeng.message.UmengMessageIntentReceiverService" android:process=":push">
+                <intent-filter>
+                    <action android:name="org.android.agoo.client.MessageReceiverService"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="org.android.agoo.client.ElectionReceiverService"/>
+                </intent-filter>
+            </service>
+            <service android:exported="false" android:name="com.umeng.message.UmengMessageCallbackHandlerService">
+                <intent-filter>
+                    <action android:name="com.umeng.messge.registercallback.action"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.umeng.message.unregistercallback.action"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.umeng.message.message.handler.action"/>
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="com.umeng.message.autoupdate.handler.action"/>
+                </intent-filter>
+            </service>
+            <!-- V1.3.0添加的service，负责下载通知的资源 -->
+            <service android:name="com.umeng.message.UmengDownloadResourceService"/>
+            <meta-data android:name="UMENG_APPKEY" android:value="$API_KEY"/>
+            <!-- Push UMENG_MESSAGE_SECRET -->
+            <meta-data android:name="UMENG_MESSAGE_SECRET" android:value="$MESSAGE_SECRET"/>
+            <!--umeng push-->
+            <meta-data android:name="UMENG_CHANNEL" android:value="Umeng"/>
+        </config-file>
+        <!-- libs -->
+        <source-file src="libs/android/com.umeng.fb.5.4.0.jar" target-dir="libs"/>
+        <source-file src="libs/android/armeabi/libumeng_opustool.so" target-dir="libs/armeabi"/>
+        <source-file src="libs/android/armeabi-v7a/libumeng_opustool.so" target-dir="libs/armeabi-v7a"/>
+        <source-file src="libs/android/mips/libumeng_opustool.so" target-dir="libs/mips"/>
+        <source-file src="libs/android/x86/libumeng_opustool.so" target-dir="libs/x86"/>
+        <!-- src -->
+        <source-file src="src/android/UMengSharePlugin.java" target-dir="src/com/myideaway/cordova/umeng/feedback"/>
+        <!-- res/anim-->
+        <source-file src="res/android/anim/umeng_fb_audio_play_anim.xml" target-dir="res/anim"/>
+        <source-file src="res/android/anim/umeng_fb_dialog_enter_anim.xml" target-dir="res/anim"/>
+        <source-file src="res/android/anim/umeng_fb_dialog_exit_anim.xml" target-dir="res/anim"/>
+        <!-- res/layout-->
+        <source-file src="res/android/layout/umeng_fb_activity_conversation.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_activity_help.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_audio_dialog.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_contact_spinner.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_contact.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_fragment_question.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_fragment.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_image_dialog.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_input_contact.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_input_conversation_audio.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_input_conversation.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_reply_item_audio.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_reply_item_image.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_reply_item_text.xml" target-dir="res/layout"/>
+        <source-file src="res/android/layout/umeng_fb_welcome_item.xml" target-dir="res/layout"/>
+        <!-- res/values-->
+        <source-file src="res/android/values/umeng_fb_color.xml" target-dir="res/values"/>
+        <source-file src="res/android/values/umeng_fb_dimens.xml" target-dir="res/values"/>
+        <source-file src="res/android/values/umeng_fb_strings.xml" target-dir="res/values"/>
+        <source-file src="res/android/values/umeng_fb_style.xml" target-dir="res/values"/>
+        <source-file src="res/android/values-zh/umeng_fb_strings.xml" target-dir="res/values-zh"/>
+        <!-- res/drawable-->
+        <source-file src="res/android/drawable/umeng_fb_action_replay.png" target-dir="res/drawable"/>
+        <source-file src="res/android/drawable/umeng_fb_arrow_right.png" target-dir="res/drawable"/>
+        <source-file src="res/android/drawable/umeng_fb_help_tab_bg.xml" target-dir="res/drawable"/>
+        <source-file src="res/android/drawable/umeng_fb_round_white_bg.xml" target-dir="res/drawable"/>
+        <!-- res/drawable-xhdpi -->
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_dialog_cancel.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_dialog_content.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_play_01.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_play_02.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_play_03.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_audio_play_bg.9.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_keyboard.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_plus.png" target-dir="res/drawable-xhdpi"/>
+        <source-file src="res/android/drawable-xhdpi/umeng_fb_record.png" target-dir="res/drawable-xhdpi"/>
+    </platform>
+</plugin>
