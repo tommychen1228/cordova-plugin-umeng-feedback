@@ -17,7 +17,7 @@ public class UMengFeedbackPlugin extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("init")) {
             init(args, callbackContext);
-        } else if (action.equals("share")) {
+        } else if (action.equals("feedback")) {
             feedback(args, callbackContext);
         }
 
