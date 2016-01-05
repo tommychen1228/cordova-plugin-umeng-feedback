@@ -37,9 +37,13 @@ public class UMengFeedbackPlugin extends CordovaPlugin {
                 boolean result = fb.updateUserInfo();
             }
         }).start();
+
+        callbackContext.success();
     }
 
     private void feedback(JSONArray args, CallbackContext callbackContext) {
         fb.startFeedbackActivity();
+
+        callbackContext.success();
     }
 }
